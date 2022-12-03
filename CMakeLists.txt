@@ -22,15 +22,6 @@ set ( COMMON_ALL
   src/common/vec3.h
 )
 
-set ( SOURCE_ONE_WEEKEND
-  ${COMMON_ALL}
-  src/InOneWeekend/hittable.h
-  src/InOneWeekend/hittable_list.h
-  src/InOneWeekend/material.h
-  src/InOneWeekend/sphere.h
-  src/InOneWeekend/main.cc
-)
-
 set ( SOURCE_NEXT_WEEK
   ${COMMON_ALL}
   src/common/aabb.h
@@ -47,37 +38,13 @@ set ( SOURCE_NEXT_WEEK
   src/TheNextWeek/material.h
   src/TheNextWeek/moving_sphere.h
   src/TheNextWeek/sphere.h
-  src/TheNextWeek/main.cc
+  src/TheNextWeek/singleThread.cpp
+  src/TheNextWeek/OMPI.cpp
+  src/TheNextWeek/OMP.cpp
 )
 
-set ( SOURCE_REST_OF_YOUR_LIFE
-  ${COMMON_ALL}
-  src/common/aabb.h
-  src/common/external/stb_image.h
-  src/common/perlin.h
-  src/common/rtw_stb_image.h
-  src/common/texture.h
-  src/TheRestOfYourLife/aarect.h
-  src/TheRestOfYourLife/box.h
-  src/TheRestOfYourLife/bvh.h
-  src/TheRestOfYourLife/hittable.h
-  src/TheRestOfYourLife/hittable_list.h
-  src/TheRestOfYourLife/material.h
-  src/TheRestOfYourLife/onb.h
-  src/TheRestOfYourLife/pdf.h
-  src/TheRestOfYourLife/sphere.h
-  src/TheRestOfYourLife/main.cc
-)
 
 # Executables
-add_executable(inOneWeekend      ${SOURCE_ONE_WEEKEND})
 add_executable(theNextWeek       ${SOURCE_NEXT_WEEK})
-add_executable(theRestOfYourLife ${SOURCE_REST_OF_YOUR_LIFE})
-add_executable(cos_cubed         src/TheRestOfYourLife/cos_cubed.cc         ${COMMON_ALL})
-add_executable(cos_density       src/TheRestOfYourLife/cos_density.cc       ${COMMON_ALL})
-add_executable(integrate_x_sq    src/TheRestOfYourLife/integrate_x_sq.cc    ${COMMON_ALL})
-add_executable(pi                src/TheRestOfYourLife/pi.cc                ${COMMON_ALL})
-add_executable(sphere_importance src/TheRestOfYourLife/sphere_importance.cc ${COMMON_ALL})
-add_executable(sphere_plot       src/TheRestOfYourLife/sphere_plot.cc       ${COMMON_ALL})
 
 include_directories(src/common)
