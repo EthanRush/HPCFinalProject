@@ -28,6 +28,7 @@
 #include <mpi.h>
 #include <time.h>
 #include <string>
+#include <cstring>
 
 double CLOCK() {
     struct timespec t;
@@ -253,7 +254,7 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     }
     MPI_Barrier(MPI_COMM_WORLD);
 
-    int mylen = strlen(localstr)
+    int mylen localstr.length();
   
     int* recvcounts = NULL;
 
@@ -272,22 +273,24 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     char* totalstring = NULL;
 
     if (world_rank == 0) {
-        displs = malloc(world_size * sizeof(int));
+        displs = (int *)malloc(world_size * sizeof(int));
 
         displs[0] = 0;
         totlen += recvcounts[0] + 1;
 
-        for (int i = 1; i < size; i++) {
+        for (int i = 1; i < world_size; i++) {
             totlen += recvcounts[i] + 1;   /* plus one for space or \0 after words */
             displs[i] = displs[i - 1] + recvcounts[i - 1] + 1;
         }
 
         /* allocate string, pre-fill with spaces and null terminator */
-        totalstring = malloc(totlen * sizeof(char));
+        totalstring = (char *)malloc(totlen * sizeof(char));
         for (int i = 0; i < totlen - 1; i++)
             totalstring[i] = ' ';
         totalstring[totlen - 1] = '\0';
     }
+    // Convert the string to a char * for use with Gather
+    char* localCharArr = localstr.c_str();
 
     MPI_Gatherv(localstr, mylen, MPI_CHAR,
         totalstring, recvcounts, displs, MPI_CHAR,
