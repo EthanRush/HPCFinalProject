@@ -1,5 +1,5 @@
 //==============================================================================================
-// Originally written in 2016 by Peter Shirley <ptrshrl@gmail.com>
+// Based on Code Originally written in 2016 by Peter Shirley <ptrshrl@gmail.com>
 //
 // To the extent possible under law, the author(s) have dedicated all copyright and related and
 // neighboring rights to this software to the public domain worldwide. This software is
@@ -23,6 +23,7 @@
 #include "texture.h"
 
 #include <iostream>
+#include <fstream>
 
 
 color ray_color(const ray& r, const color& background, const hittable& world, int depth) {
@@ -97,53 +98,6 @@ hittable_list random_scene() {
 }
 
 
-hittable_list two_spheres() {
-    hittable_list objects;
-
-    auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
-
-    objects.add(make_shared<sphere>(point3(0,-10, 0), 10, make_shared<lambertian>(checker)));
-    objects.add(make_shared<sphere>(point3(0, 10, 0), 10, make_shared<lambertian>(checker)));
-
-    return objects;
-}
-
-
-hittable_list two_perlin_spheres() {
-    hittable_list objects;
-
-    auto pertext = make_shared<noise_texture>(4);
-    objects.add(make_shared<sphere>(point3(0,-1000,0), 1000, make_shared<lambertian>(pertext)));
-    objects.add(make_shared<sphere>(point3(0,2,0), 2, make_shared<lambertian>(pertext)));
-
-    return objects;
-}
-
-
-hittable_list earth() {
-    auto earth_texture = make_shared<image_texture>("earthmap.jpg");
-    auto earth_surface = make_shared<lambertian>(earth_texture);
-    auto globe = make_shared<sphere>(point3(0,0,0), 2, earth_surface);
-
-    return hittable_list(globe);
-}
-
-
-hittable_list simple_light() {
-    hittable_list objects;
-
-    auto pertext = make_shared<noise_texture>(4);
-    objects.add(make_shared<sphere>(point3(0,-1000,0), 1000, make_shared<lambertian>(pertext)));
-    objects.add(make_shared<sphere>(point3(0,2,0), 2, make_shared<lambertian>(pertext)));
-
-    auto difflight = make_shared<diffuse_light>(color(4,4,4));
-    objects.add(make_shared<sphere>(point3(0,7,0), 2, difflight));
-    objects.add(make_shared<xy_rect>(3, 5, 1, 3, -2, difflight));
-
-    return objects;
-}
-
-
 hittable_list cornell_box() {
     hittable_list objects;
 
@@ -168,36 +122,6 @@ hittable_list cornell_box() {
     box2 = make_shared<rotate_y>(box2, -18);
     box2 = make_shared<translate>(box2, vec3(130,0,65));
     objects.add(box2);
-
-    return objects;
-}
-
-
-hittable_list cornell_smoke() {
-    hittable_list objects;
-
-    auto red   = make_shared<lambertian>(color(.65, .05, .05));
-    auto white = make_shared<lambertian>(color(.73, .73, .73));
-    auto green = make_shared<lambertian>(color(.12, .45, .15));
-    auto light = make_shared<diffuse_light>(color(7, 7, 7));
-
-    objects.add(make_shared<yz_rect>(0, 555, 0, 555, 555, green));
-    objects.add(make_shared<yz_rect>(0, 555, 0, 555, 0, red));
-    objects.add(make_shared<xz_rect>(113, 443, 127, 432, 554, light));
-    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
-    objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
-    objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
-
-    shared_ptr<hittable> box1 = make_shared<box>(point3(0,0,0), point3(165,330,165), white);
-    box1 = make_shared<rotate_y>(box1, 15);
-    box1 = make_shared<translate>(box1, vec3(265,0,295));
-
-    shared_ptr<hittable> box2 = make_shared<box>(point3(0,0,0), point3(165,165,165), white);
-    box2 = make_shared<rotate_y>(box2, -18);
-    box2 = make_shared<translate>(box2, vec3(130,0,65));
-
-    objects.add(make_shared<constant_medium>(box1, 0.01, color(0,0,0)));
-    objects.add(make_shared<constant_medium>(box2, 0.01, color(1,1,1)));
 
     return objects;
 }
@@ -245,8 +169,6 @@ hittable_list final_scene() {
     boundary = make_shared<sphere>(point3(0,0,0), 5000, make_shared<dielectric>(1.5));
     objects.add(make_shared<constant_medium>(boundary, .0001, color(1,1,1)));
 
-    auto emat = make_shared<lambertian>(make_shared<image_texture>("earthmap.jpg"));
-    objects.add(make_shared<sphere>(point3(400,200,400), 100, emat));
     auto pertext = make_shared<noise_texture>(0.1);
     objects.add(make_shared<sphere>(point3(220,280,300), 80, make_shared<lambertian>(pertext)));
 
@@ -268,6 +190,32 @@ hittable_list final_scene() {
 }
 
 
+void render(std::ostream &out, hittable_list world, camera cam, float aspect_ratio, int image_width, int samples_per_pixel , int max_depth , color background) {
+    
+    const int image_height = static_cast<int>(image_width / aspect_ratio);
+   
+    // Render
+
+    out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+
+    for (int j = image_height - 1; j >= 0; --j) {
+        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+        for (int i = 0; i < image_width; ++i) {
+            color pixel_color(0, 0, 0);
+            for (int s = 0; s < samples_per_pixel; ++s) {
+                auto u = (i + random_double()) / (image_width - 1);
+                auto v = (j + random_double()) / (image_height - 1);
+                ray r = cam.get_ray(u, v);
+                pixel_color += ray_color(r, background, world, max_depth);
+            }
+            write_color(out, pixel_color, samples_per_pixel);
+        }
+    }
+
+    std::cerr << "\nDone.\n";
+
+}
+
 int main() {
 
     // Image
@@ -281,111 +229,55 @@ int main() {
 
     hittable_list world;
 
+    // Camera
+    const vec3 vup(0, 1, 0);
+    const auto dist_to_focus = 10.0;
+
     point3 lookfrom;
     point3 lookat;
     auto vfov = 40.0;
     auto aperture = 0.0;
     color background(0,0,0);
-
-    switch (0) {
-        case 1:
-            world = random_scene();
-            background = color(0.70, 0.80, 1.00);
-            lookfrom = point3(13,2,3);
-            lookat = point3(0,0,0);
-            vfov = 20.0;
-            aperture = 0.1;
-            break;
-
-        case 2:
-            world = two_spheres();
-            background = color(0.70, 0.80, 1.00);
-            lookfrom = point3(13,2,3);
-            lookat = point3(0,0,0);
-            vfov = 20.0;
-            break;
-
-        case 3:
-            world = two_perlin_spheres();
-            background = color(0.70, 0.80, 1.00);
-            lookfrom = point3(13,2,3);
-            lookat = point3(0,0,0);
-            vfov = 20.0;
-            break;
-
-        case 4:
-            world = earth();
-            background = color(0.70, 0.80, 1.00);
-            lookfrom = point3(0,0,12);
-            lookat = point3(0,0,0);
-            vfov = 20.0;
-            break;
-
-        case 5:
-            world = simple_light();
-            samples_per_pixel = 400;
-            lookfrom = point3(26,3,6);
-            lookat = point3(0,2,0);
-            vfov = 20.0;
-            break;
-
-        default:
-        case 6:
-            world = cornell_box();
-            aspect_ratio = 1.0;
-            image_width = 600;
-            samples_per_pixel = 200;
-            lookfrom = point3(278, 278, -800);
-            lookat = point3(278, 278, 0);
-            vfov = 40.0;
-            break;
-
-        case 7:
-            world = cornell_smoke();
-            aspect_ratio = 1.0;
-            image_width = 600;
-            samples_per_pixel = 200;
-            lookfrom = point3(278, 278, -800);
-            lookat = point3(278, 278, 0);
-            vfov = 40.0;
-            break;
-
-        case 8:
-            world = final_scene();
-            aspect_ratio = 1.0;
-            image_width = 800;
-            samples_per_pixel = 10000;
-            lookfrom = point3(478, 278, -600);
-            lookat = point3(278, 278, 0);
-            vfov = 40.0;
-            break;
-    }
-
-    // Camera
-
-    const vec3 vup(0,1,0);
-    const auto dist_to_focus = 10.0;
-    const int image_height = static_cast<int>(image_width / aspect_ratio);
-
+    std::ofstream out;
+    
+    /**
+    // Scene 1
+    world = random_scene();
+    background = color(0.70, 0.80, 1.00);
+    lookfrom = point3(13,2,3);
+    lookat = point3(0,0,0);
+    vfov = 20.0;
+    aperture = 0.1;
     camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+    out.open("shierlyOrbs.ppm");
+    render(out, world, cam, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
+    out.close();
 
-    // Render
+    // Scene 2
+    world = cornell_box();
+    aspect_ratio = 1.0;
+    image_width = 600;
+    samples_per_pixel = 200;
+    lookfrom = point3(278, 278, -800);
+    lookat = point3(278, 278, 0);
+    vfov = 40.0;
+    camera cam2(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+    out.open("cornell.ppm");
+    render(out, world, cam2, aspect_ratio, image_width, samples_per_pixel, max_depth, background);    
+    out.close();
+    **/
+    // Scene 3
+    world = final_scene();
+    aspect_ratio = 1.0;
+    image_width = 800;
+    samples_per_pixel = 1000;
+    lookfrom = point3(478, 278, -600);
+    lookat = point3(278, 278, 0);
+    vfov = 40.0;
+    camera cam3(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+    out.open("final.ppm");
+    render(out, world, cam3, aspect_ratio, image_width, samples_per_pixel, max_depth, background);    
+    out.close();
 
-    std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
-
-    for (int j = image_height-1; j >= 0; --j) {
-        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
-        for (int i = 0; i < image_width; ++i) {
-            color pixel_color(0,0,0);
-            for (int s = 0; s < samples_per_pixel; ++s) {
-                auto u = (i + random_double()) / (image_width-1);
-                auto v = (j + random_double()) / (image_height-1);
-                ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, background, world, max_depth);
-            }
-            write_color(std::cout, pixel_color, samples_per_pixel);
-        }
-    }
-
-    std::cerr << "\nDone.\n";
+    return 0;
 }
