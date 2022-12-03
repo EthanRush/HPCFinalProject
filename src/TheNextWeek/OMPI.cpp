@@ -26,6 +26,13 @@
 #include <fstream>
 
 #include <mpi.h>
+#include <time.h>
+
+double CLOCK() {
+    struct timespec t;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    return (t.tv_sec * 1000) + (t.tv_nsec * 1e-6);
+}
 
 
 
@@ -204,13 +211,13 @@ void write_to_file(std::ostream& out, int arr[][][3]) {
 }
 
 void render(std::ostream &out, hittable_list world, camera cam, float aspect_ratio, int image_width, int samples_per_pixel , int max_depth , color background) {
-    
+    double start, finish, total;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
     out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     int world_rank;
     int world_size;
     int increment;
-
+    start = CLOCK();
     int image_data[image_height][image_width][3];
 
     MPI_Init(NULL, NULL);
@@ -255,6 +262,9 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
 
     std::cerr << "\nDone.\n";
     MPI_Finalize();
+    finish = CLOCK();
+    total = finish - start;
+    cout << "Total Render Time: " << total << endl;
     write_to_file(out, image_data);
 
 }
