@@ -234,7 +234,7 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     else {
         start_index = (image_height - 1) - (rows_per_proc * world_rank);
         // height 24: 0 = 23, 1 = 21, 2 = 19, 3 = 17, ..., 11 = 1
-        end_index = ((image_height - 1) - (rows_per_proc * (world_rank + 1) - 1);
+        end_index = (image_height - 1) - (rows_per_proc * (world_rank + 1) - 1);
         // height 24: 0 = 22, 1 = 20, 2 = 18, ..., 11 = 0
     }
 
@@ -258,9 +258,9 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     total = finish - start;
     std::cout << "Total Render Time: " << total << std::endl;
     std::cout << "Begin write to file" << std::endl;
-    for (auto k : image_data) {
+    for (int k = 0; k < image_height; k++) {
         std::cerr << "\rScanlines remaining: " << k << ' ' << std::flush;
-        for (auto l : image_data[k]) {
+        for (int l = 0; l < image_width; l++) {
             out << image_data[k][l][0] << ' '
                 << image_data[k][l][1] << ' '
                 << image_data[k][l][2] << '\n';
