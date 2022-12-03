@@ -353,9 +353,16 @@ int main() {
     vfov = 20.0;
     aperture = 0.1;
     camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-    out.open("shierlyOrbs.ppm");
+
+    if (world_rank == 0) {
+        out.open("shierlyOrbs.ppm");
+    }
+
     render(out, world, cam, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
-    out.close();
+    
+    if (world_rank == 0) {
+        out.close();
+    }
     /*
     // Scene 2
     world = cornell_box();
