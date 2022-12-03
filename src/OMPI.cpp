@@ -254,13 +254,13 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     }
     MPI_Barrier(MPI_COMM_WORLD);
 
-    int mylen localstr.length();
+    int mylen = localstr.length();
   
     int* recvcounts = NULL;
 
     /* Only root has the received data */
     if (world_rank == 0) {
-        recvcounts = malloc(world_size * sizeof(int));
+        recvcounts =(int *) malloc(world_size * sizeof(int));
     }
 
     // Gathers length of each process' string for displacement calculations
@@ -290,7 +290,7 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
         totalstring[totlen - 1] = '\0';
     }
     // Convert the string to a char * for use with Gather
-    char* localCharArr = localstr.c_str();
+    const char* localCharArr = localstr.c_str();
 
     MPI_Gatherv(localstr, mylen, MPI_CHAR,
         totalstring, recvcounts, displs, MPI_CHAR,
