@@ -210,13 +210,16 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     int world_rank;
     int world_size;
     int increment;
-    start = CLOCK();
+    
     MPI_Init(NULL, NULL);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     if (world_size != 12) {
         fprintf(stderr, "World size must be twelve");
         MPI_Abort(MPI_COMM_WORLD, 1);
+    }
+    if (world_rank == 0) {
+        start = CLOCK();
     }
 
     int rows_per_proc = int(std::ceil(image_height / world_size));
@@ -298,12 +301,16 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
 
 
     MPI_Finalize();
-    finish = CLOCK();
-    total = finish - start;
-    std::cout << "Total Render Time: " << total << std::endl;
-    std::cout << "Begin write to file" << std::endl;
-    out << totalstring;
-    std::cout << "Finished write to file" << std::endl;
+    if (world_rank == 0) {
+
+
+        finish = CLOCK();
+        total = finish - start;
+        std::cout << "Total Render Time: " << total << std::endl;
+        std::cout << "Begin write to file" << std::endl;
+        out << totalstring;
+        std::cout << "Finished write to file" << std::endl;
+    }
 
 }
 
