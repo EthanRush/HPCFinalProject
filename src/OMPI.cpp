@@ -204,6 +204,14 @@ hittable_list final_scene() {
 
 
 void render(std::ostream &out, hittable_list world, camera cam, float aspect_ratio, int image_width, int samples_per_pixel , int max_depth , color background) {
+   
+    int world_rank;
+    int world_size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    
+    
+    
     double start, finish, total;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
 
