@@ -216,7 +216,7 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     if (world_size != 12) {
-        fprintf(stderr, "World size must be twelve for %s\n", argv[0]);
+        fprintf(stderr, "World size must be twelve");
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
 
@@ -256,16 +256,17 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     MPI_Finalize();
     finish = CLOCK();
     total = finish - start;
-    cout << "Total Render Time: " << total << endl;
-    cout << "Begin write to file" << endl;
+    std::cout << "Total Render Time: " << total << std::endl;
+    std::cout << "Begin write to file" << std::endl;
     for (auto k : arr) {
         std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
         for (auto l : arr[j]) {
             out << arr[k][l][0] << ' '
                 << arr[k][l][1] << ' '
                 << arr[k][l][2] << '\n';
-
-    cout << "Finished write to file" << endl;
+        }
+    }
+    std::cout << "Finished write to file" << std::endl;
 
 }
 
