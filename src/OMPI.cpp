@@ -258,12 +258,12 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     total = finish - start;
     std::cout << "Total Render Time: " << total << std::endl;
     std::cout << "Begin write to file" << std::endl;
-    for (auto k : arr) {
-        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
-        for (auto l : arr[j]) {
-            out << arr[k][l][0] << ' '
-                << arr[k][l][1] << ' '
-                << arr[k][l][2] << '\n';
+    for (auto k : image_data) {
+        std::cerr << "\rScanlines remaining: " << k << ' ' << std::flush;
+        for (auto l : image_data[k]) {
+            out << image_data[k][l][0] << ' '
+                << image_data[k][l][1] << ' '
+                << image_data[k][l][2] << '\n';
         }
     }
     std::cout << "Finished write to file" << std::endl;
