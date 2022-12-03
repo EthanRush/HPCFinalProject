@@ -33,11 +33,13 @@ void write_color(std::string& pixel, color pixel_color, int samples_per_pixel) {
     b = sqrt(scale * b);
 
     // Write the translated [0,255] value of each color component.
-    pixel   += static_cast<int>(256 * clamp(r, 0.0, 0.999)) + ' '
-            + static_cast<int>(256 * clamp(g, 0.0, 0.999)) + ' '
-            + static_cast<int>(256 * clamp(b, 0.0, 0.999)) + '\n';
+    std::string r_str = std::to_string(static_cast<int>(256 * clamp(r, 0.0, 0.999))) + ' ';
+    std::string g_str = std::to_string(static_cast<int>(256 * clamp(g, 0.0, 0.999))) + ' ';
+    std::string b_str = std::to_string( static_cast<int>(256 * clamp(b, 0.0, 0.999))) + '\n';
 
-    std::cout << pixel << std::endl;
+    pixel = pixel + r_str;
+    pixel = pixel + g_str;
+    pixel = pixel + b_str;
 }
 
 
