@@ -299,11 +299,6 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     // Convert the string to a char * for use with Gather
     const char* localCharArr = localstr.c_str();
 
-    if (world_rank == 1) {
-        std::cout << localstr << std::endl;
-    }
-
-
     MPI_Gatherv(localCharArr, mylen, MPI_CHAR,
         totalstring, recvcounts, displs, MPI_CHAR,
         0, MPI_COMM_WORLD);
