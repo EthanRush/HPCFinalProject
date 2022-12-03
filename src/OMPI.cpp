@@ -200,7 +200,7 @@ hittable_list final_scene() {
 
     return objects;
 }
-void write_to_file(std::ostream& out, int arr[][][3]) {
+void write_to_file(std::ostream& out, int arr[][][]) {
 
     for (auto j: arr) {
         std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
