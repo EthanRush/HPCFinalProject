@@ -200,15 +200,7 @@ hittable_list final_scene() {
 
     return objects;
 }
-void write_to_file(std::ostream& out, int arr[][][]) {
 
-    for (auto j: arr) {
-        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
-        for (auto i: arr[j]) {
-            out << arr[j][i][0] << ' '
-                << arr[j][i][1] << ' '
-                << arr[j][i][2] << '\n';
-}
 
 void render(std::ostream &out, hittable_list world, camera cam, float aspect_ratio, int image_width, int samples_per_pixel , int max_depth , color background) {
     double start, finish, total;
@@ -265,7 +257,15 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     finish = CLOCK();
     total = finish - start;
     cout << "Total Render Time: " << total << endl;
-    write_to_file(out, image_data);
+    cout << "Begin write to file" << endl;
+    for (auto k : arr) {
+        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
+        for (auto l : arr[j]) {
+            out << arr[k][l][0] << ' '
+                << arr[k][l][1] << ' '
+                << arr[k][l][2] << '\n';
+
+    cout << "Finished write to file" << endl;
 
 }
 
