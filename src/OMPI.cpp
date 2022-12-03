@@ -239,7 +239,6 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     }
 
     for (int j = start_index; j >= end_index; --j) {
-        std::cerr << "\rScanlines remaining: " << j << ' ' << std::flush;
         for (int i = 0; i < image_width; ++i) {
             color pixel_color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; ++s) {
@@ -248,18 +247,16 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
                 ray r = cam.get_ray(u, v);
                 pixel_color += ray_color(r, background, world, max_depth);
             }
-            write_color(image_data[i][j], pixel_color, samples_per_pixel);
+            write_color(image_data[j][i], pixel_color, samples_per_pixel);
         }
     }
 
-    std::cerr << "\nDone.\n";
     MPI_Finalize();
     finish = CLOCK();
     total = finish - start;
     std::cout << "Total Render Time: " << total << std::endl;
     std::cout << "Begin write to file" << std::endl;
     for (int k = 0; k < image_height; k++) {
-        std::cerr << "\rScanlines remaining: " << k << ' ' << std::flush;
         for (int l = 0; l < image_width; l++) {
             out << image_data[k][l][0] << ' '
                 << image_data[k][l][1] << ' '
