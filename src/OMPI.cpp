@@ -27,13 +27,13 @@
 
 #include <mpi.h>
 #include <time.h>
+#include <string>
 
 double CLOCK() {
     struct timespec t;
     clock_gettime(CLOCK_MONOTONIC, &t);
     return (t.tv_sec * 1000) + (t.tv_nsec * 1e-6);
 }
-
 
 
 color ray_color(const ray& r, const color& background, const hittable& world, int depth) {
@@ -210,8 +210,6 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     int world_size;
     int increment;
     start = CLOCK();
-    int image_data[image_height][image_width][3];
-
     MPI_Init(NULL, NULL);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
@@ -222,6 +220,8 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
 
     int rows_per_proc = int(std::ceil(image_height / world_size));
     int start_index, end_index;
+
+
     // If image not divisible by world size need to allocate the extra rows
     int remainder = image_height % world_size;
     if (remainder != 0) {
@@ -237,6 +237,7 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
         end_index = (image_height - 1) - (rows_per_proc * (world_rank + 1) - 1);
         // height 24: 0 = 22, 1 = 20, 2 = 18, ..., 11 = 0
     }
+    std::string localstr = "";
 
     for (int j = start_index; j >= end_index; --j) {
         for (int i = 0; i < image_width; ++i) {
@@ -247,22 +248,58 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
                 ray r = cam.get_ray(u, v);
                 pixel_color += ray_color(r, background, world, max_depth);
             }
-            write_color(image_data[j][i], pixel_color, samples_per_pixel);
+            write_color(localstr, pixel_color, samples_per_pixel);
         }
     }
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    int mylen = strlen(localstr)
+  
+    int* recvcounts = NULL;
+
+    /* Only root has the received data */
+    if (world_rank == 0) {
+        recvcounts = malloc(world_size * sizeof(int));
+    }
+
+    // Gathers length of each process' string for displacement calculations
+    MPI_Gather(&mylen, 1, MPI_INT,
+        recvcounts, 1, MPI_INT,
+        0, MPI_COMM_WORLD);
+    
+    int totlen = 0;
+    int* displs = NULL;
+    char* totalstring = NULL;
+
+    if (world_rank == 0) {
+        displs = malloc(world_size * sizeof(int));
+
+        displs[0] = 0;
+        totlen += recvcounts[0] + 1;
+
+        for (int i = 1; i < size; i++) {
+            totlen += recvcounts[i] + 1;   /* plus one for space or \0 after words */
+            displs[i] = displs[i - 1] + recvcounts[i - 1] + 1;
+        }
+
+        /* allocate string, pre-fill with spaces and null terminator */
+        totalstring = malloc(totlen * sizeof(char));
+        for (int i = 0; i < totlen - 1; i++)
+            totalstring[i] = ' ';
+        totalstring[totlen - 1] = '\0';
+    }
+
+    MPI_Gatherv(localstr, mylen, MPI_CHAR,
+        totalstring, recvcounts, displs, MPI_CHAR,
+        0, MPI_COMM_WORLD);
+
 
     MPI_Finalize();
     finish = CLOCK();
     total = finish - start;
     std::cout << "Total Render Time: " << total << std::endl;
     std::cout << "Begin write to file" << std::endl;
-    for (int k = 0; k < image_height; k++) {
-        for (int l = 0; l < image_width; l++) {
-            out << image_data[k][l][0] << ' '
-                << image_data[k][l][1] << ' '
-                << image_data[k][l][2] << '\n';
-        }
-    }
+    out << totalstring;
     std::cout << "Finished write to file" << std::endl;
 
 }
@@ -303,6 +340,7 @@ int main() {
     out.open("shierlyOrbs.ppm");
     render(out, world, cam, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
     out.close();
+    std::cout << "Test if still multithreaded" << std::endl;
     /*
     // Scene 2
     world = cornell_box();
