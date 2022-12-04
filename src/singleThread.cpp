@@ -253,7 +253,7 @@ int main() {
     color background(0,0,0);
     std::ofstream out;
     
-    /**
+    
     // Scene 1
     world = random_scene();
     background = color(0.70, 0.80, 1.00);
@@ -265,7 +265,7 @@ int main() {
     out.open("shierlyOrbs.ppm");
     render(out, world, cam, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
     out.close();
-
+    /*
     // Scene 2
     world = cornell_box();
     aspect_ratio = 1.0;
@@ -278,8 +278,9 @@ int main() {
     out.open("cornell.ppm");
     render(out, world, cam2, aspect_ratio, image_width, samples_per_pixel, max_depth, background);    
     out.close();
-    **/
+    */
     // Scene 3
+    /*
     world = final_scene();
     aspect_ratio = 1.0;
     image_width = 800;
@@ -291,6 +292,6 @@ int main() {
     out.open("final.ppm");
     render(out, world, cam3, aspect_ratio, image_width, samples_per_pixel, max_depth, background);    
     out.close();
-
+    */
     return 0;
 }
