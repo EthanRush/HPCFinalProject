@@ -275,7 +275,6 @@ int main(int argc, char* argv[]) {
         lookat = point3(0, 0, 0);
         vfov = 20.0;
         aperture = 0.1;
-        camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
         fileName = "shierlyOrbs_mpi.ppm";
         break;
     }
@@ -289,7 +288,6 @@ int main(int argc, char* argv[]) {
         lookfrom = point3(278, 278, -800);
         lookat = point3(278, 278, 0);
         vfov = 40.0;
-        camera cam2(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
         fileName = "cornell_mpi.ppm";
         break;
     }
@@ -303,12 +301,12 @@ int main(int argc, char* argv[]) {
         lookfrom = point3(478, 278, -600);
         lookat = point3(278, 278, 0);
         vfov = 40.0;
-        camera cam3(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
         fileName = "final_mpi.ppm";
         break;
     }
     }
 
+    camera cam3(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
     out.open(fileName);
     render(out, world, cam, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
