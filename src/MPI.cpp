@@ -303,7 +303,7 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
         0, MPI_COMM_WORLD);
 
 
-   
+    MPI_Finalize();
     if (world_rank == 0) {
         finish = CLOCK();
         total = finish - start;
