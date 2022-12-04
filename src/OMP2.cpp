@@ -26,18 +26,10 @@
 #include <fstream>
 
 #include <omp.h>
-#include <time.h>
 #include <string>
 #include <cstring>
 
 #define THREAD_NUM 12
-
-double CLOCK() {
-    struct timespec t;
-    clock_gettime(CLOCK_MONOTONIC, &t);
-    return (t.tv_sec * 1000) + (t.tv_nsec * 1e-6);
-}
-
 
 color ray_color(const ray& r, const color& background, const hittable& world, int depth) {
     hit_record rec;
@@ -208,14 +200,14 @@ hittable_list final_scene() {
 
 
 void render(std::ostream& out, hittable_list world, camera cam, float aspect_ratio, int image_width, int samples_per_pixel, int max_depth, color background) {
-    const double start = CLOCK();
+    const double start =omp_get_wtime();
     const int image_height = static_cast<int>(image_width / aspect_ratio);
 
     out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     
     const int rows_per_proc = int(std::ceil(image_height * 1.0 / THREAD_NUM));
     int remainder = image_height % THREAD_NUM;
-    #pragma omp parallel num_threads(THREAD_NUM) private(world_rank, start_index, end_index,localstr, j, i, s, start) firstprivate(image_width, image_height, remainder, rows_per_proc, samples_per_pixel, background, world, max_depth)
+    #pragma omp parallel num_threads(THREAD_NUM) firstprivate(image_width, image_height, remainder, rows_per_proc, samples_per_pixel, background, world, max_depth)
     {
         int world_rank = omp_get_thread_num();  
         int start_index, end_index;
@@ -261,7 +253,7 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
             }
         }
     }
-    double finish = CLOCK();
+    double finish = omp_get_wtime();
     double total = finish - start;
     std::cout << "Total Render Time: " << total << std::endl;
 
