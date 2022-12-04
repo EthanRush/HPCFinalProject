@@ -224,7 +224,7 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
         out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     }
 
-    int rows_per_proc = int(std::ceil(image_height / world_size));
+    int rows_per_proc = int(std::ceil(image_height * 1.0 / world_size));
     int start_index, end_index;
 
 
