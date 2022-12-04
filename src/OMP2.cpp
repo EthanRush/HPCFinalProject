@@ -300,7 +300,7 @@ int main(int argc, char* argv[]) {
         lookat = point3(0, 0, 0);
         vfov = 20.0;
         aperture = 0.1;
-        fileName = "shierlyOrbs_mpi.ppm";
+        fileName = "shierlyOrbs_omp.ppm";
         break;
     }
     case 2:
@@ -313,7 +313,7 @@ int main(int argc, char* argv[]) {
         lookfrom = point3(278, 278, -800);
         lookat = point3(278, 278, 0);
         vfov = 40.0;
-        fileName = "cornell_mpi.ppm";
+        fileName = "cornell_omp.ppm";
         break;
     }
     case 3:
@@ -326,7 +326,7 @@ int main(int argc, char* argv[]) {
         lookfrom = point3(478, 278, -600);
         lookat = point3(278, 278, 0);
         vfov = 40.0;
-        fileName = "final_mpi.ppm";
+        fileName = "final_omp.ppm";
         break;
     }
     }
