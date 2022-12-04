@@ -265,6 +265,8 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
+    int sceneNum = argv[1];
+
     auto aspect_ratio = 16.0 / 9.0;
     int image_width = 400;
     int samples_per_pixel = 100;

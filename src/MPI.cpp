@@ -319,6 +319,13 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
 
 int main(int argc, char* argv[]) {
 
+    if (argc > 2) {
+        std::cout << "Too many arguments, please just enter the scene number (1-3) or nothing to default to 1" << std::endl;
+        return -1;
+    }
+
+    int sceneNum = argv[1];
+
     int world_rank;
     int world_size;
 
