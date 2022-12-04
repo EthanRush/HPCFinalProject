@@ -208,8 +208,7 @@ hittable_list final_scene() {
 
 
 void render(std::ostream& out, hittable_list world, camera cam, float aspect_ratio, int image_width, int samples_per_pixel, int max_depth, color background) {
-    const double start, finish, total;
-    start = CLOCK();
+    const double start = CLOCK();
     const int image_height = static_cast<int>(image_width / aspect_ratio);
 
     out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
@@ -259,8 +258,8 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
             }
         }
     }
-    finish = CLOCK();
-    total = finish - start;
+    double finish = CLOCK();
+    double total = finish - start;
     std::cout << "Total Render Time: " << total << std::endl;
 
 
