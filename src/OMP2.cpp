@@ -214,15 +214,15 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
     out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     
     const int rows_per_proc = int(std::ceil(image_height * 1.0 / THREAD_NUM));
-
-    #pragma omp parallel num_threads(THREAD_NUM) firstprivate(image_width, image_height, rows_per_proc, samples_per_pixel, background, world, max_depth)
+    int remainder = image_height % THREAD_NUM;
+    #pragma omp parallel num_threads(THREAD_NUM) private(world_rank, start_index, end_index,localstr, j, i, s, start) firstprivate(image_width, image_height, remainder, rows_per_proc, samples_per_pixel, background, world, max_depth)
     {
         int world_rank = omp_get_thread_num();  
         int start_index, end_index;
 
 
         // If image not divisible by world size need to allocate the extra rows
-        int remainder = image_height % THREAD_NUM;
+        
         if (remainder != 0) {
             start_index = (image_height - 1) - ((rows_per_proc * world_rank) - std::max(0, (world_rank - remainder)));
             // height 50: 0 = 49, 1 = 44, 2 = 39, 3 = 35, 4 = 31, 5 = 27, 6 = 23, 7 = 19, 8 = 15, 9 = 11, 10 = 7, 11 = 3
@@ -253,8 +253,10 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
         // ensures chunks are output in order
         #pragma omp for ordered schedule(static,1)
         for (int t = 0; t < omp_get_num_threads(); t++) {
+            
+            assert(t == world_rank);
             #pragma omp ordered
-            if (t == omp_get_thread_num()) {
+            {
                 out << localstr;
             }
         }
