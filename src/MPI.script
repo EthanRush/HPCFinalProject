@@ -6,5 +6,5 @@
 #SBATCH --time=00:30:00
 #SBATCH --job-name=EthansJob
 #SBATCH --mem=100G
-#SBATCH --partition=short
+#SBATCH --partition=express
 $SRUN mpirun -mca btl_base_warn_component_unused 0 /scratch/rush.e/Proj/HPCFinalProject/src/mpi
