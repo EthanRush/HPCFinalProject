@@ -220,9 +220,8 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
 
     
     std::string totalstr = "";
-
+    #pragma omp parallel for ordered shared(totalstr) firstprivate(background, world, max_depth, samples_per_pixel, image_width, image_height)
     for (int j = image_height-1; j >= 0; --j) {
-        #pragma omp parallel for ordered shared(totalstr) firstprivate(background, world, max_depth, samples_per_pixel, image_width, image_height)
         for (int i = 0; i < image_width; ++i) {
             color pixel_color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; ++s) {
