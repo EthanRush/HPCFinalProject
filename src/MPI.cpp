@@ -25,13 +25,10 @@
 #include <iostream>
 #include <fstream>
 
-#include <omp.h>
+#include <mpi.h>
 #include <time.h>
 #include <string>
 #include <cstring>
-
-
-#define NUMTHREADS 12
 
 double CLOCK() {
     struct timespec t;
@@ -45,7 +42,7 @@ color ray_color(const ray& r, const color& background, const hittable& world, in
 
     // If we've exceeded the ray bounce limit, no more light is gathered.
     if (depth <= 0)
-        return color(0, 0, 0);
+        return color(0,0,0);
 
     // If the ray hits nothing, return the background color.
     if (!world.hit(r, 0.001, infinity, rec))
@@ -58,7 +55,7 @@ color ray_color(const ray& r, const color& background, const hittable& world, in
     if (!rec.mat_ptr->scatter(r, rec, attenuation, scattered))
         return emitted;
 
-    return emitted + attenuation * ray_color(scattered, background, world, depth - 1);
+    return emitted + attenuation * ray_color(scattered, background, world, depth-1);
 }
 
 
@@ -67,12 +64,12 @@ hittable_list random_scene() {
 
     auto checker = make_shared<checker_texture>(color(0.2, 0.3, 0.1), color(0.9, 0.9, 0.9));
 
-    world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, make_shared<lambertian>(checker)));
+    world.add(make_shared<sphere>(point3(0,-1000,0), 1000, make_shared<lambertian>(checker)));
 
     for (int a = -11; a < 11; a++) {
         for (int b = -11; b < 11; b++) {
             auto choose_mat = random_double();
-            point3 center(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
+            point3 center(a + 0.9*random_double(), 0.2, b + 0.9*random_double());
 
             if ((center - vec3(4, 0.2, 0)).length() > 0.9) {
                 shared_ptr<material> sphere_material;
@@ -81,18 +78,16 @@ hittable_list random_scene() {
                     // diffuse
                     auto albedo = color::random() * color::random();
                     sphere_material = make_shared<lambertian>(albedo);
-                    auto center2 = center + vec3(0, random_double(0, .5), 0);
+                    auto center2 = center + vec3(0, random_double(0,.5), 0);
                     world.add(make_shared<moving_sphere>(
                         center, center2, 0.0, 1.0, 0.2, sphere_material));
-                }
-                else if (choose_mat < 0.95) {
+                } else if (choose_mat < 0.95) {
                     // metal
                     auto albedo = color::random(0.5, 1);
                     auto fuzz = random_double(0, 0.5);
                     sphere_material = make_shared<metal>(albedo, fuzz);
                     world.add(make_shared<sphere>(center, 0.2, sphere_material));
-                }
-                else {
+                } else {
                     // glass
                     sphere_material = make_shared<dielectric>(1.5);
                     world.add(make_shared<sphere>(center, 0.2, sphere_material));
@@ -117,7 +112,7 @@ hittable_list random_scene() {
 hittable_list cornell_box() {
     hittable_list objects;
 
-    auto red = make_shared<lambertian>(color(.65, .05, .05));
+    auto red   = make_shared<lambertian>(color(.65, .05, .05));
     auto white = make_shared<lambertian>(color(.73, .73, .73));
     auto green = make_shared<lambertian>(color(.12, .45, .15));
     auto light = make_shared<diffuse_light>(color(15, 15, 15));
@@ -129,14 +124,14 @@ hittable_list cornell_box() {
     objects.add(make_shared<xz_rect>(0, 555, 0, 555, 0, white));
     objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
 
-    shared_ptr<hittable> box1 = make_shared<box>(point3(0, 0, 0), point3(165, 330, 165), white);
+    shared_ptr<hittable> box1 = make_shared<box>(point3(0,0,0), point3(165,330,165), white);
     box1 = make_shared<rotate_y>(box1, 15);
-    box1 = make_shared<translate>(box1, vec3(265, 0, 295));
+    box1 = make_shared<translate>(box1, vec3(265,0,295));
     objects.add(box1);
 
-    shared_ptr<hittable> box2 = make_shared<box>(point3(0, 0, 0), point3(165, 165, 165), white);
+    shared_ptr<hittable> box2 = make_shared<box>(point3(0,0,0), point3(165,165,165), white);
     box2 = make_shared<rotate_y>(box2, -18);
-    box2 = make_shared<translate>(box2, vec3(130, 0, 65));
+    box2 = make_shared<translate>(box2, vec3(130,0,65));
     objects.add(box2);
 
     return objects;
@@ -151,14 +146,14 @@ hittable_list final_scene() {
     for (int i = 0; i < boxes_per_side; i++) {
         for (int j = 0; j < boxes_per_side; j++) {
             auto w = 100.0;
-            auto x0 = -1000.0 + i * w;
-            auto z0 = -1000.0 + j * w;
+            auto x0 = -1000.0 + i*w;
+            auto z0 = -1000.0 + j*w;
             auto y0 = 0.0;
             auto x1 = x0 + w;
-            auto y1 = random_double(1, 101);
+            auto y1 = random_double(1,101);
             auto z1 = z0 + w;
 
-            boxes1.add(make_shared<box>(point3(x0, y0, z0), point3(x1, y1, z1), ground));
+            boxes1.add(make_shared<box>(point3(x0,y0,z0), point3(x1,y1,z1), ground));
         }
     }
 
@@ -170,37 +165,37 @@ hittable_list final_scene() {
     objects.add(make_shared<xz_rect>(123, 423, 147, 412, 554, light));
 
     auto center1 = point3(400, 400, 200);
-    auto center2 = center1 + vec3(30, 0, 0);
+    auto center2 = center1 + vec3(30,0,0);
     auto moving_sphere_material = make_shared<lambertian>(color(0.7, 0.3, 0.1));
     objects.add(make_shared<moving_sphere>(center1, center2, 0, 1, 50, moving_sphere_material));
 
     objects.add(make_shared<sphere>(point3(260, 150, 45), 50, make_shared<dielectric>(1.5)));
     objects.add(make_shared<sphere>(
         point3(0, 150, 145), 50, make_shared<metal>(color(0.8, 0.8, 0.9), 1.0)
-        ));
+    ));
 
-    auto boundary = make_shared<sphere>(point3(360, 150, 145), 70, make_shared<dielectric>(1.5));
+    auto boundary = make_shared<sphere>(point3(360,150,145), 70, make_shared<dielectric>(1.5));
     objects.add(boundary);
     objects.add(make_shared<constant_medium>(boundary, 0.2, color(0.2, 0.4, 0.9)));
-    boundary = make_shared<sphere>(point3(0, 0, 0), 5000, make_shared<dielectric>(1.5));
-    objects.add(make_shared<constant_medium>(boundary, .0001, color(1, 1, 1)));
+    boundary = make_shared<sphere>(point3(0,0,0), 5000, make_shared<dielectric>(1.5));
+    objects.add(make_shared<constant_medium>(boundary, .0001, color(1,1,1)));
 
     auto emat = make_shared<lambertian>(make_shared<image_texture>("earthmap.jpg"));
-    objects.add(make_shared<sphere>(point3(400, 200, 400), 100, emat));
+    objects.add(make_shared<sphere>(point3(400,200,400), 100, emat));
     auto pertext = make_shared<noise_texture>(0.1);
-    objects.add(make_shared<sphere>(point3(220, 280, 300), 80, make_shared<lambertian>(pertext)));
+    objects.add(make_shared<sphere>(point3(220,280,300), 80, make_shared<lambertian>(pertext)));
 
     hittable_list boxes2;
     auto white = make_shared<lambertian>(color(.73, .73, .73));
     int ns = 1000;
     for (int j = 0; j < ns; j++) {
-        boxes2.add(make_shared<sphere>(point3::random(0, 165), 10, white));
+        boxes2.add(make_shared<sphere>(point3::random(0,165), 10, white));
     }
 
     objects.add(make_shared<translate>(
         make_shared<rotate_y>(
             make_shared<bvh_node>(boxes2, 0.0, 1.0), 15),
-        vec3(-100, 270, 395)
+            vec3(-100,270,395)
         )
     );
 
@@ -208,21 +203,52 @@ hittable_list final_scene() {
 }
 
 
-void render(std::ostream& out, hittable_list world, camera cam, float aspect_ratio, int image_width, int samples_per_pixel, int max_depth, color background) {
-
+void render(std::ostream &out, hittable_list world, camera cam, float aspect_ratio, int image_width, int samples_per_pixel , int max_depth , color background) {
    
-    int world_size = NUMTHREADS;
-
+    int world_rank;
+    int world_size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+    if (world_size != 12) {
+        fprintf(stderr, "World size must be twelve");
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
+    
+    
     double start, finish, total;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    start = CLOCK();
-    out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
-    
-    std::string totalstr = "";
+    if (world_size != 12) {
+        fprintf(stderr, "World size must be twelve");
+        MPI_Abort(MPI_COMM_WORLD, 1);
+    }
+    if (world_rank == 0) {
+        start = CLOCK();
+        out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+    }
+
+    int rows_per_proc = int(std::ceil(image_height * 1.0 / world_size));
+    int start_index, end_index;
+
+
+    // If image not divisible by world size need to allocate the extra rows
+    int remainder = image_height % world_size;
+    if (remainder != 0) {
+         start_index = (image_height - 1) - ((rows_per_proc * world_rank) - std::max(0, (world_rank - remainder)));
+        // height 50: 0 = 49, 1 = 44, 2 = 39, 3 = 35, 4 = 31, 5 = 27, 6 = 23, 7 = 19, 8 = 15, 9 = 11, 10 = 7, 11 = 3
+        
+        end_index = (image_height - 1) - (((rows_per_proc * (world_rank + 1)) - std::max(0, ((world_rank + 1) - remainder))) - 1) ;
+        // height 50:  0 = 45, 1 = 40, 2 = 36, 3 = 32, ..., 11 = 0
+    }
+    else {
+        start_index = (image_height - 1) - (rows_per_proc * world_rank);
+        // height 24: 0 = 23, 1 = 21, 2 = 19, 3 = 17, ..., 11 = 1
+        end_index = (image_height - 1) - (rows_per_proc * (world_rank + 1) - 1);
+        // height 24: 0 = 22, 1 = 20, 2 = 18, ..., 11 = 0
+    }
+    std::string localstr = "";
 
     for (int j = start_index; j >= end_index; --j) {
-        #pragma omp parallel for shared(totalstr) firstprivate(background, world, max_depth, samples_per_pixel, image_width, image_height)
         for (int i = 0; i < image_width; ++i) {
             color pixel_color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; ++s) {
@@ -231,28 +257,84 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
                 ray r = cam.get_ray(u, v);
                 pixel_color += ray_color(r, background, world, max_depth);
             }
-            #pragma omp ordered
-            write_color(totalstr, pixel_color, samples_per_pixel);
+            write_color(localstr, pixel_color, samples_per_pixel);
         }
     }
+    MPI_Barrier(MPI_COMM_WORLD);
 
+    int mylen = localstr.length();
   
-    finish = CLOCK();
-    total = finish - start;
-    std::cout << "Total Render Time: " << total << std::endl;
-    std::cout << "Begin write to file" << std::endl;
-    out << totalstring;
-    std::cout << "Finished write to file" << std::endl;
-   
+    int* recvcounts = NULL;
+
+    /* Only root has the received data */
+    if (world_rank == 0) {
+        recvcounts =(int *) malloc(world_size * sizeof(int));
+    }
+
+    // Gathers length of each process' string for displacement calculations
+    MPI_Gather(&mylen, 1, MPI_INT,
+        recvcounts, 1, MPI_INT,
+        0, MPI_COMM_WORLD);
+    
+    int totlen = 0;
+    int* displs = NULL;
+    char* totalstring = NULL;
+
+    if (world_rank == 0) {
+        displs = (int *)malloc(world_size * sizeof(int));
+
+        displs[0] = 0;
+        totlen += recvcounts[0] + 1;
+
+        for (int i = 1; i < world_size; i++) {
+            totlen += recvcounts[i] + 1;   /* plus one for space or \0 after words */
+            displs[i] = displs[i - 1] + recvcounts[i - 1] + 1;
+        }
+
+        /* allocate string, pre-fill with spaces and null terminator */
+        totalstring = (char *)malloc(totlen * sizeof(char));
+        for (int i = 0; i < totlen - 1; i++)
+            totalstring[i] = ' ';
+        totalstring[totlen - 1] = '\0';
+
+        std::cout << totlen << std::endl;
+    }
+    // Convert the string to a char * for use with Gather
+    const char* localCharArr = localstr.c_str();
+
+    MPI_Gatherv(localCharArr, mylen, MPI_CHAR,
+        totalstring, recvcounts, displs, MPI_CHAR,
+        0, MPI_COMM_WORLD);
+
+
+    MPI_Finalize();
+    if (world_rank == 0) {
+        finish = CLOCK();
+        total = finish - start;
+        std::cout << "Total Render Time: " << total << std::endl;
+        std::cout << "Begin write to file" << std::endl;
+        out << totalstring;
+        std::cout << "Finished write to file" << std::endl;
+    }
 
 }
 
 int main() {
 
-    omp_set_num_threads(NUMTHREADS)
+    int world_rank;
+    int world_size;
+
+    MPI_Init(NULL, NULL);
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     
     unsigned int seed;
-
+    // Ensure that all processes are using same seed for their randomness
+    if (world_rank == 0) {
+        seed = time(NULL);
+    }
+    MPI_Bcast(&seed, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    srand(seed);
     // Image
 
     auto aspect_ratio = 16.0 / 9.0;
@@ -272,25 +354,28 @@ int main() {
     point3 lookat;
     auto vfov = 40.0;
     auto aperture = 0.0;
-    color background(0, 0, 0);
+    color background(0,0,0);
     std::ofstream out;
-
-
+    
+   
     // Scene 1
     world = random_scene();
     background = color(0.70, 0.80, 1.00);
-    lookfrom = point3(13, 2, 3);
-    lookat = point3(0, 0, 0);
+    lookfrom = point3(13,2,3);
+    lookat = point3(0,0,0);
     vfov = 20.0;
     aperture = 0.1;
     camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
-    out.open("shierlyOrbs.ppm");
+    if (world_rank == 0) {
+        out.open("shierlyOrbs.ppm");
+    }
+
     render(out, world, cam, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
-    out.close();
-
-
-
+    
+    if (world_rank == 0) {
+        out.close();
+    }
     /*
     // Scene 2
     world = cornell_box();
@@ -302,7 +387,7 @@ int main() {
     vfov = 40.0;
     camera cam2(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
     out.open("cornell.ppm");
-    render(out, world, cam2, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
+    render(out, world, cam2, aspect_ratio, image_width, samples_per_pixel, max_depth, background);    
     out.close();
 
 
@@ -317,7 +402,7 @@ int main() {
     vfov = 40.0;
     camera cam3(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
     out.open("final.ppm");
-    render(out, world, cam3, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
+    render(out, world, cam3, aspect_ratio, image_width, samples_per_pixel, max_depth, background);    
     out.close();
     */
     return 0;
