@@ -294,8 +294,6 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
         for (int i = 0; i < totlen - 1; i++)
             totalstring[i] = ' ';
         totalstring[totlen - 1] = '\0';
-
-        std::cout << totlen << std::endl;
     }
     // Convert the string to a char * for use with Gather
     const char* localCharArr = localstr.c_str();
