@@ -331,7 +331,7 @@ int main(int argc, char* argv[]) {
     }
     }
 
-    camera cam3(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+    camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
     out.open(fileName);
     render(out, world, cam, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
