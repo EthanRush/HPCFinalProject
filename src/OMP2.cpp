@@ -266,23 +266,6 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
 }
 
 int main() {
-
-    int world_rank;
-    int world_size;
-
-    MPI_Init(NULL, NULL);
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-
-    unsigned int seed;
-    // Ensure that all processes are using same seed for their randomness
-    if (world_rank == 0) {
-        seed = time(NULL);
-    }
-    MPI_Bcast(&seed, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    srand(seed);
-    // Image
-
     auto aspect_ratio = 16.0 / 9.0;
     int image_width = 400;
     int samples_per_pixel = 100;
@@ -303,7 +286,6 @@ int main() {
     color background(0, 0, 0);
     std::ofstream out;
 
-
     // Scene 1
     world = random_scene();
     background = color(0.70, 0.80, 1.00);
@@ -313,15 +295,10 @@ int main() {
     aperture = 0.1;
     camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
-    if (world_rank == 0) {
-        out.open("shierlyOrbs.ppm");
-    }
-
+    out.open("shierlyOrbs.ppm");
     render(out, world, cam, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
-
-    if (world_rank == 0) {
-        out.close();
-    }
+    out.close();
+    
     /*
     // Scene 2
     world = cornell_box();
