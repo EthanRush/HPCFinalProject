@@ -208,7 +208,7 @@ hittable_list final_scene() {
 
 
 void render(std::ostream& out, hittable_list world, camera cam, float aspect_ratio, int image_width, int samples_per_pixel, int max_depth, color background) {
-    double start, finish, total;
+    const double start, finish, total;
     start = CLOCK();
     const int image_height = static_cast<int>(image_width / aspect_ratio);
 
@@ -216,7 +216,7 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
     
     const int rows_per_proc = int(std::ceil(image_height * 1.0 / THREAD_NUM));
 
-    #pragma omp parallel num_threads(THREAD_NUM) firstprivate(image_height, rows_per_proc)
+    #pragma omp parallel num_threads(THREAD_NUM) firstprivate(image_height, rows_per_proc, samples_per_pixel, background, world, max_depth)
     {
         int world_rank = omp_get_thread_num();  
         int start_index, end_index;
