@@ -230,6 +230,7 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
                 ray r = cam.get_ray(u, v);
                 pixel_color += ray_color(r, background, world, max_depth);
             }
+            #pragma omp ordered
             write_color(totalstr, pixel_color, samples_per_pixel);
         }
     }
