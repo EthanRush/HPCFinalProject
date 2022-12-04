@@ -40,7 +40,7 @@ inline double clamp(double x, double min, double max) {
 
 inline double random_double() {
     // Returns a random real in [0,1).
-    static thread_local std::mt19937 generator;
+    static std::mt19937 generator;
     std::uniform_real_distribution<double> distribution(0.0, 1.0);
     return distribution(generator);
 }
