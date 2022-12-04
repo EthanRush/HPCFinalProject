@@ -305,7 +305,7 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
         0, MPI_COMM_WORLD);
 
 
-    MPI_Finalize();
+   
     if (world_rank == 0) {
         finish = CLOCK();
         total = finish - start;
@@ -402,6 +402,6 @@ int main() {
     out.open("final_mpi.ppm");
     render(out, world, cam3, aspect_ratio, image_width, samples_per_pixel, max_depth, background);    
     out.close();
-    
+    MPI_Finalize();
     return 0;
 }
