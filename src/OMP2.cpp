@@ -258,7 +258,13 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
 
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+
+    if (argc > 2) {
+        std::cout << "Too many arguments, please just enter the scene number (1-3) or nothing to default to 1" << std::endl;
+        return -1;
+    }
+
     auto aspect_ratio = 16.0 / 9.0;
     int image_width = 400;
     int samples_per_pixel = 100;
@@ -278,48 +284,53 @@ int main() {
     auto aperture = 0.0;
     color background(0, 0, 0);
     std::ofstream out;
+    std::string fileName;
 
-    // Scene 1
-    world = random_scene();
-    background = color(0.70, 0.80, 1.00);
-    lookfrom = point3(13, 2, 3);
-    lookat = point3(0, 0, 0);
-    vfov = 20.0;
-    aperture = 0.1;
-    camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+    switch (sceneNum)
+    {
+    case 1:
+    default:
+        // Scene 1
+        world = random_scene();
+        background = color(0.70, 0.80, 1.00);
+        lookfrom = point3(13, 2, 3);
+        lookat = point3(0, 0, 0);
+        vfov = 20.0;
+        aperture = 0.1;
+        camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+        fileName = "shierlyOrbs_mpi.ppm";
+        break;
+    case 2:
+        // Scene 2
+        world = cornell_box();
+        aspect_ratio = 1.0;
+        image_width = 600;
+        samples_per_pixel = 200;
+        lookfrom = point3(278, 278, -800);
+        lookat = point3(278, 278, 0);
+        vfov = 40.0;
+        camera cam2(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+        fileName = "cornell_mpi.ppm";
+        break;
+    case 3:
+        // Scene 3
+        world = final_scene();
+        aspect_ratio = 1.0;
+        image_width = 800;
+        samples_per_pixel = 600;
+        lookfrom = point3(478, 278, -600);
+        lookat = point3(278, 278, 0);
+        vfov = 40.0;
+        camera cam3(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+        fileName = "final_mpi.ppm";
+        break;
+    }
 
-    out.open("shierlyOrbs_omp.ppm");
+   
+    out.open(fileName);
     render(out, world, cam, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
     out.close();
     
-    
-    // Scene 2
-    world = cornell_box();
-    aspect_ratio = 1.0;
-    image_width = 600;
-    samples_per_pixel = 200;
-    lookfrom = point3(278, 278, -800);
-    lookat = point3(278, 278, 0);
-    vfov = 40.0;
-    camera cam2(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-    out.open("cornell_omp.ppm");
-    render(out, world, cam2, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
-    out.close();
-
-
-
-    // Scene 3
-    world = final_scene();
-    aspect_ratio = 1.0;
-    image_width = 800;
-    samples_per_pixel = 600;
-    lookfrom = point3(478, 278, -600);
-    lookat = point3(278, 278, 0);
-    vfov = 40.0;
-    camera cam3(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-    out.open("final_omp.ppm");
-    render(out, world, cam3, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
-    out.close();
     
     return 0;
 }
