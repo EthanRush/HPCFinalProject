@@ -221,8 +221,8 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
     
     std::string totalstr = "";
 
-    for (int j = start_index; j >= end_index; --j) {
-        #pragma omp parallel for shared(totalstr) firstprivate(background, world, max_depth, samples_per_pixel, image_width, image_height)
+    for (int j = image_height-1; j >= 0; --j) {
+        #pragma omp parallel for ordered shared(totalstr) firstprivate(background, world, max_depth, samples_per_pixel, image_width, image_height)
         for (int i = 0; i < image_width; ++i) {
             color pixel_color(0, 0, 0);
             for (int s = 0; s < samples_per_pixel; ++s) {
@@ -231,7 +231,6 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
                 ray r = cam.get_ray(u, v);
                 pixel_color += ray_color(r, background, world, max_depth);
             }
-            #pragma omp ordered
             write_color(totalstr, pixel_color, samples_per_pixel);
         }
     }
@@ -241,7 +240,7 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
     total = finish - start;
     std::cout << "Total Render Time: " << total << std::endl;
     std::cout << "Begin write to file" << std::endl;
-    out << totalstring;
+    out << totalstr;
     std::cout << "Finished write to file" << std::endl;
    
 
@@ -249,7 +248,7 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
 
 int main() {
 
-    omp_set_num_threads(NUMTHREADS)
+    omp_set_num_threads(NUMTHREADS);
     
     unsigned int seed;
 
