@@ -176,8 +176,6 @@ hittable_list final_scene() {
     boundary = make_shared<sphere>(point3(0, 0, 0), 5000, make_shared<dielectric>(1.5));
     objects.add(make_shared<constant_medium>(boundary, .0001, color(1, 1, 1)));
 
-    auto emat = make_shared<lambertian>(make_shared<image_texture>("earthmap.jpg"));
-    objects.add(make_shared<sphere>(point3(400, 200, 400), 100, emat));
     auto pertext = make_shared<noise_texture>(0.1);
     objects.add(make_shared<sphere>(point3(220, 280, 300), 80, make_shared<lambertian>(pertext)));
 
@@ -290,11 +288,11 @@ int main() {
     aperture = 0.1;
     camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
-    out.open("shierlyOrbs.ppm");
+    out.open("shierlyOrbs_omp.ppm");
     render(out, world, cam, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
     out.close();
     
-    /*
+    
     // Scene 2
     world = cornell_box();
     aspect_ratio = 1.0;
@@ -304,7 +302,7 @@ int main() {
     lookat = point3(278, 278, 0);
     vfov = 40.0;
     camera cam2(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-    out.open("cornell.ppm");
+    out.open("cornell_omp.ppm");
     render(out, world, cam2, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
     out.close();
 
@@ -314,14 +312,14 @@ int main() {
     world = final_scene();
     aspect_ratio = 1.0;
     image_width = 800;
-    samples_per_pixel = 10000;
+    samples_per_pixel = 600;
     lookfrom = point3(478, 278, -600);
     lookat = point3(278, 278, 0);
     vfov = 40.0;
     camera cam3(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-    out.open("final.ppm");
+    out.open("final_omp.ppm");
     render(out, world, cam3, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
     out.close();
-    */
+    
     return 0;
 }

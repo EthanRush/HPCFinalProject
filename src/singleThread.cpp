@@ -262,10 +262,10 @@ int main() {
     vfov = 20.0;
     aperture = 0.1;
     camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-    out.open("shierlyOrbs.ppm");
+    out.open("shierlyOrbs_sing.ppm");
     render(out, world, cam, aspect_ratio, image_width, samples_per_pixel, max_depth, background);
     out.close();
-    /*
+    
     // Scene 2
     world = cornell_box();
     aspect_ratio = 1.0;
@@ -275,23 +275,23 @@ int main() {
     lookat = point3(278, 278, 0);
     vfov = 40.0;
     camera cam2(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-    out.open("cornell.ppm");
+    out.open("cornell_sing.ppm");
     render(out, world, cam2, aspect_ratio, image_width, samples_per_pixel, max_depth, background);    
     out.close();
-    */
+    
     // Scene 3
-    /*
+    
     world = final_scene();
     aspect_ratio = 1.0;
     image_width = 800;
-    samples_per_pixel = 1000;
+    samples_per_pixel = 600;
     lookfrom = point3(478, 278, -600);
     lookat = point3(278, 278, 0);
     vfov = 40.0;
     camera cam3(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-    out.open("final.ppm");
+    out.open("final_sing.ppm");
     render(out, world, cam3, aspect_ratio, image_width, samples_per_pixel, max_depth, background);    
     out.close();
-    */
+    
     return 0;
 }
