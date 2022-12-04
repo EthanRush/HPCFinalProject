@@ -253,7 +253,7 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
 #pragma omp barrier
         if (omp_get_thread_num() == 0) {
             double render_fin = CLOCK()-start;
-            std::cout << "Render time without IO: "  << render_fin << std::endl
+            std::cout << "Render time without IO: " << render_fin << std::endl;
         }
         // ensures chunks are output in order
         for (int t = 0; t < omp_get_num_threads(); t++) {
