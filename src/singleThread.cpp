@@ -24,7 +24,13 @@
 
 #include <iostream>
 #include <fstream>
+#include <time.h>
 
+double CLOCK() {
+    struct timespec t;
+    clock_gettime(CLOCK_MONOTONIC, &t);
+    return (t.tv_sec * 1000) + (t.tv_nsec * 1e-6);
+}
 
 color ray_color(const ray& r, const color& background, const hittable& world, int depth) {
     hit_record rec;
@@ -196,6 +202,8 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
    
     // Render
 
+    double start = CLOCK();
+
     out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
     for (int j = image_height - 1; j >= 0; --j) {
@@ -213,7 +221,9 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     }
 
     std::cerr << "\nDone.\n";
-
+    double finish = CLOCK();
+    double total = finish - start;
+    std::cout << "Total Render Time: " << total << std::endl;
 }
 
 int main() {
