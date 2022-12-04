@@ -203,7 +203,7 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     // Render
 
     double start = CLOCK();
-
+    std::string totalstr = "";
     out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
 
     for (int j = image_height - 1; j >= 0; --j) {
@@ -216,7 +216,7 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
                 ray r = cam.get_ray(u, v);
                 pixel_color += ray_color(r, background, world, max_depth);
             }
-            write_color(out, pixel_color, samples_per_pixel);
+            write_color(totalstr, pixel_color, samples_per_pixel);
         }
     }
 
@@ -224,6 +224,9 @@ void render(std::ostream &out, hittable_list world, camera cam, float aspect_rat
     double finish = CLOCK();
     double total = finish - start;
     std::cout << "Total Render Time: " << total << std::endl;
+    std::cout << "Begin write to file" << std::endl;
+    out << totalstr;
+    std::cout << "Finished write to file" << std::endl;
 }
 
 int main() {
