@@ -265,7 +265,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    int sceneNum = argv[1];
+    int sceneNum = std::stoi(argv[1]);
 
     auto aspect_ratio = 16.0 / 9.0;
     int image_width = 400;
@@ -292,6 +292,7 @@ int main(int argc, char* argv[]) {
     {
     case 1:
     default:
+    {
         // Scene 1
         world = random_scene();
         background = color(0.70, 0.80, 1.00);
@@ -302,7 +303,9 @@ int main(int argc, char* argv[]) {
         camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
         fileName = "shierlyOrbs_mpi.ppm";
         break;
+    }
     case 2:
+    {
         // Scene 2
         world = cornell_box();
         aspect_ratio = 1.0;
@@ -314,7 +317,9 @@ int main(int argc, char* argv[]) {
         camera cam2(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
         fileName = "cornell_mpi.ppm";
         break;
+    }
     case 3:
+    {
         // Scene 3
         world = final_scene();
         aspect_ratio = 1.0;
@@ -326,6 +331,7 @@ int main(int argc, char* argv[]) {
         camera cam3(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
         fileName = "final_mpi.ppm";
         break;
+    }
     }
 
    

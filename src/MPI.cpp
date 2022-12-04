@@ -324,7 +324,7 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    int sceneNum = argv[1];
+    int sceneNum = std::stoi(argv[1]);
 
     int world_rank;
     int world_size;
@@ -365,42 +365,48 @@ int main(int argc, char* argv[]) {
    
     switch (sceneNum)
     {
-    case 1:
-    default:
-        // Scene 1
-        world = random_scene();
-        background = color(0.70, 0.80, 1.00);
-        lookfrom = point3(13, 2, 3);
-        lookat = point3(0, 0, 0);
-        vfov = 20.0;
-        aperture = 0.1;
-        camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-        fileName = "shierlyOrbs_mpi.ppm";
-        break;
-    case 2:
-        // Scene 2
-        world = cornell_box();
-        aspect_ratio = 1.0;
-        image_width = 600;
-        samples_per_pixel = 200;
-        lookfrom = point3(278, 278, -800);
-        lookat = point3(278, 278, 0);
-        vfov = 40.0;
-        camera cam2(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-        fileName = "cornell_mpi.ppm";
-        break;
-    case 3:
-        // Scene 3
-        world = final_scene();
-        aspect_ratio = 1.0;
-        image_width = 800;
-        samples_per_pixel = 600;
-        lookfrom = point3(478, 278, -600);
-        lookat = point3(278, 278, 0);
-        vfov = 40.0;
-        camera cam3(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
-        fileName = "final_mpi.ppm";
-        break;
+        case 1:
+        default:
+        {
+            // Scene 1
+            world = random_scene();
+            background = color(0.70, 0.80, 1.00);
+            lookfrom = point3(13, 2, 3);
+            lookat = point3(0, 0, 0);
+            vfov = 20.0;
+            aperture = 0.1;
+            camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+            fileName = "shierlyOrbs_mpi.ppm";
+            break;
+        }
+        case 2:
+        {
+            // Scene 2
+            world = cornell_box();
+            aspect_ratio = 1.0;
+            image_width = 600;
+            samples_per_pixel = 200;
+            lookfrom = point3(278, 278, -800);
+            lookat = point3(278, 278, 0);
+            vfov = 40.0;
+            camera cam2(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+            fileName = "cornell_mpi.ppm";
+            break;
+        }
+        case 3:
+        {
+            // Scene 3
+            world = final_scene();
+            aspect_ratio = 1.0;
+            image_width = 800;
+            samples_per_pixel = 600;
+            lookfrom = point3(478, 278, -600);
+            lookat = point3(278, 278, 0);
+            vfov = 40.0;
+            camera cam3(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+            fileName = "final_mpi.ppm";
+            break;
+        }
     }
 
     if (world_rank == 0) {
