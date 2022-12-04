@@ -208,21 +208,22 @@ hittable_list final_scene() {
 
 
 void render(std::ostream& out, hittable_list world, camera cam, float aspect_ratio, int image_width, int samples_per_pixel, int max_depth, color background) {
-    int world_size = THREAD_NUM;
     double start, finish, total;
     start = CLOCK();
-    out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    int rows_per_proc = int(std::ceil(image_height * 1.0 / world_size));
 
-    #pragma omp parallel num_threads(THREAD_NUM)
+    out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
+    
+    int rows_per_proc = int(std::ceil(image_height * 1.0 / THREAD_NUM));
+
+    #pragma omp parallel num_threads(THREAD_NUM) firstprivate(image_height, rows_per_proc)
     {
         int world_rank = omp_get_thread_num();  
         int start_index, end_index;
 
 
         // If image not divisible by world size need to allocate the extra rows
-        int remainder = image_height % world_size;
+        int remainder = image_height % THREAD_NUM;
         if (remainder != 0) {
             start_index = (image_height - 1) - ((rows_per_proc * world_rank) - std::max(0, (world_rank - remainder)));
             // height 50: 0 = 49, 1 = 44, 2 = 39, 3 = 35, 4 = 31, 5 = 27, 6 = 23, 7 = 19, 8 = 15, 9 = 11, 10 = 7, 11 = 3
