@@ -214,8 +214,8 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
 
     out << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     
-    int rows_per_proc = int(std::ceil(image_height * 1.0 / THREAD_NUM));
-
+    const int rows_per_proc = int(std::ceil(image_height * 1.0 / THREAD_NUM));
+    const std::ostream fileOut = out;
     #pragma omp parallel num_threads(THREAD_NUM) firstprivate(image_height, rows_per_proc)
     {
         int world_rank = omp_get_thread_num();  
@@ -255,7 +255,7 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
         for (int t = 0; t < omp_get_num_threads(); t++) {
             #pragma omp barrier
             if (t == omp_get_thread_num()) {
-                out << localstr;
+                fileOut << localstr;
             }
         }
     }
