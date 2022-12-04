@@ -215,7 +215,7 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
     
     const int rows_per_proc = int(std::ceil(image_height * 1.0 / THREAD_NUM));
 
-    #pragma omp parallel num_threads(THREAD_NUM) firstprivate(image_height, rows_per_proc, samples_per_pixel, background, world, max_depth)
+    #pragma omp parallel num_threads(THREAD_NUM) firstprivate(image_width, image_height, rows_per_proc, samples_per_pixel, background, world, max_depth)
     {
         int world_rank = omp_get_thread_num();  
         int start_index, end_index;
@@ -250,14 +250,10 @@ void render(std::ostream& out, hittable_list world, camera cam, float aspect_rat
                 write_color(localstr, pixel_color, samples_per_pixel);
             }
         }
-#pragma omp barrier
-        if (omp_get_thread_num() == 0) {
-            double render_fin = CLOCK()-start;
-            std::cout << "Render time without IO: " << render_fin << std::endl;
-        }
         // ensures chunks are output in order
+        #pragma omp for ordered schedule(static,1)
         for (int t = 0; t < omp_get_num_threads(); t++) {
-            #pragma omp barrier
+            #pragma omp ordered
             if (t == omp_get_thread_num()) {
                 out << localstr;
             }
