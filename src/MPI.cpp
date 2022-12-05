@@ -373,7 +373,7 @@ int main(int argc, char* argv[]) {
             lookat = point3(0, 0, 0);
             vfov = 20.0;
             aperture = 0.1;
-            fileName = "shierlyOrbs_mpi.ppm";
+            fileName = "shirleyOrbs_mpi.ppm";
             break;
         }
         case 2:
