@@ -300,7 +300,7 @@ int main(int argc, char* argv[]) {
         lookat = point3(0, 0, 0);
         vfov = 20.0;
         aperture = 0.1;
-        fileName = "shierlyOrbs_omp.ppm";
+        fileName = "shirleyOrbs_omp.ppm";
         break;
     }
     case 2:
