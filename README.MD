@@ -1,3 +1,8 @@
+2 seperate parallel implementations of Peter Shirley's path tracer. One built with OpenMP and the other with OpenMPI.
+
+The scripts present are designed to be used on Northeastern University's Discovery Cluster
+
+
 Scene options:
 
 1/Default: Shirley Orbs
