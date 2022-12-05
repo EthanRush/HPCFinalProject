@@ -1,6 +1,6 @@
 Scene options:
 
-1/Default: Shierly Orbs
+1/Default: Shirley Orbs
 
 2: Cornell Box
 
