@@ -1,0 +1,10 @@
+#!/bin/bash
+#SBATCH --verbose
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --cpus-per-task=12
+#SBATCH --time=01:00:00
+#SBATCH --job-name=EthansJob
+#SBATCH --mem=100G
+#SBATCH --partition=express
+$SRUN /scratch/rush.e/Proj/HPCFinalProject/src/omp 2
